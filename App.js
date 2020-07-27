@@ -14,25 +14,26 @@ function Dropdown(props) {
 	const [selected, changeSelectedTo] = useState('none')
 	const [alphabetSelected, changeAlphabetSelectedTo] = useState('*')
 	const [searchedText, changeSearchedTextTo] = useState('')
+	const [states, setStatesTo] = useState([])
 
 	/*********/
 	/* ITEMS */
 	/*********/
 
 	const items = [
-		{label: 'Java', value: 'Java'},
-		{label: 'Python', value: 'Python'},
-		{label: 'Scala', value: 'Scala'},
-		{label: 'C++', value: 'C++'},
-		{label: 'PHP', value: 'PHP'},
-		{label: 'C', value: 'C'},
-		{label: 'Clojure', value: 'Clojure'},
-		{label: 'HTML', value: 'HTML'},
-		{label: 'CSS', value: 'CSS'},
-		{label: 'Javascript', value: 'Javascript'},
-		{label: 'Typescript', value: 'Typescript'},
-		{label: 'ClojureScript', value: 'ClojureScript'},
-		{label: 'Lisp', value: 'Lisp'},
+		{label: 'Java', value: 'Java', type: 'title'},
+		{label: 'Python', value: 'Python', type: 'item'},
+		{label: 'Scala', value: 'Scala', type: 'item'},
+		{label: 'C++', value: 'C++', type: 'item'},
+		{label: 'PHP', value: 'PHP', type: 'item'},
+		{label: 'C', value: 'C', type: 'item'},
+		{label: 'Clojure', value: 'Clojure', type: 'item'},
+		{label: 'HTML', value: 'HTML', type: 'item'},
+		{label: 'CSS', value: 'CSS', type: 'item'},
+		{label: 'Javascript', value: 'Javascript', type: 'item'},
+		{label: 'Typescript', value: 'Typescript', type: 'item'},
+		{label: 'ClojureScript', value: 'ClojureScript', type: 'item'},
+		{label: 'Lisp', value: 'Lisp', type: 'item'},
 	]
 	.sort((item1, item2) => item1.label.localeCompare(item2.label))
 	
@@ -46,8 +47,11 @@ function Dropdown(props) {
 			const key = item.value
 			const isSelected = (selected === item.value)? true : false
 			return (
-				<DropdownItem 	name={item.label} selected={isSelected} key={key}
-								onPress={() => changeSelectedTo(item.value)} />
+				<DropdownItem 
+					name={item.label} selected={isSelected} key={key}
+					type={item.type}
+					onPress={() => changeSelectedTo(item.value)}
+				/>
 			)
 		})
 	}
@@ -100,8 +104,22 @@ function Dropdown(props) {
 		})
 	}
 
+	/*********/
+	/* STATE */
+	/*********/
+
 	return (
 		<View style={styles.DropdownContainer}>
+
+			<View style={styles.DropdownBackButtonContainer}>
+				<TouchableOpacity style={styles.DropdownBackButton}>
+					<Text style={[styles.DropdownBackButtonText, {textAlign: 'left'}]}>BACK</Text>
+				</TouchableOpacity>
+				<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
+				<TouchableOpacity style={styles.DropdownBackButton}>
+					<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+				</TouchableOpacity>
+			</View>
 
 			<View style={styles.DropdownSearch}>
 				<TextInput 	
@@ -144,8 +162,9 @@ function Dropdown(props) {
 }
 
 function DropdownItem(props) {
-	const iconColor = (props.selected)? 'green' : 'white'
-	const containerStyle = (props.selected)? '#F8F8F8' : 'white'
+	const iconColor = (props.selected && (props.type != 'title'))? 'green' : 'white'
+	const containerStyle = (props.selected && (props.type != 'title'))? '#F8F8F8' : 'white'
+	const titleArrow = (props.type === 'title')? (<Text style={{fontSize: 28}}>→</Text>) : (<Text></Text>)
 
 	return (
 		<TouchableOpacity style={{width: '100%'}} onPress={props.onPress}>
@@ -227,6 +246,24 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		textAlign: 'center',
 		fontWeight: 'bold'
+	},
+
+	DropdownBackButtonContainer: {
+		width: '100%',
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	DropdownBackButton: {
+		width: '33.33%',
+		padding: '5%'
+	},
+	DropdownBackButtonText: {
+		width: '100%',
+		textAlign: 'center',
+		fontSize: 16,
+		fontWeight: 'bold',
+		color: '#2196f3'
 	},
 
 	DropdownItemsContainer: {
