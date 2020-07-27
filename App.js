@@ -4,12 +4,19 @@ import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity } from 
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 export default function App() {
-	return <Dropdown />
+	return 	<Dropdown 
+				title='Products' 
+			/>
 }
 
 function Dropdown(props) {
 
 	const [selected, changeSelectedTo] = useState('none')
+	const [alphabetSelected, changeAlphabetSelectedTo] = useState('*')
+
+	/*********/
+	/* ITEMS */
+	/*********/
 
 	const items = [
 		{label: 'Java', value: 'Java'},
@@ -27,11 +34,13 @@ function Dropdown(props) {
 		{label: 'Lisp', value: 'Lisp'},
 	]
 	.sort((item1, item2) => item1.label.localeCompare(item2.label))
-
-	const alphabetSearchVisible = (items.length > 10)? true : false
-
+	
 	const getItemsJSX = () => {
-		return items.map((item) => {
+		let finalItems = items
+
+		if(alphabetSelected !== '*') finalItems = filterItemsByAlphabetSearch(finalItems)
+
+		return finalItems.map((item) => {
 			const key = item.value
 			const isSelected = (selected === item.value)? true : false
 			return (
@@ -39,6 +48,31 @@ function Dropdown(props) {
 								onPress={() => changeSelectedTo(item.value)} />
 			)
 		})
+	}
+
+	/*******************/
+	/* ALPHABET SEARCH */
+	/*******************/
+
+	const alphabetSearchVisible = (items.length > 10)? true : false
+
+	const filterItemsByAlphabetSearch = (givenItems) => {
+		return givenItems.filter((item) => {
+			if(alphabetSelected === '*') return true
+			if(alphabetSelected === item.label[0].toLocaleLowerCase()) return true
+			return false
+		})
+	}
+
+	const checkForEmptiness = (itemsJSX) => {
+		if(itemsJSX.length === 0) {
+			return (
+				<View>
+					<Text style={{textAlign: 'center', fontWeight: 'bold'}}>Oops! No items exist.</Text>
+				</View>
+			)
+		}
+		return itemsJSX
 	}
 
 	return (
@@ -51,7 +85,7 @@ function Dropdown(props) {
 
 			<View style={styles.DropdownTitleContainer}>
 				<Text style={styles.DropdownTitleText}>
-					Products
+					{(props.title)? props.title : 'Items'}
 				</Text>
 			</View>
 
@@ -60,9 +94,12 @@ function Dropdown(props) {
 					
 					<ScrollView style={[styles.DropdownItemsList, 
 										{width: (alphabetSearchVisible)? '95%' : '100%'}]}>
-						{getItemsJSX()}
+						{checkForEmptiness(getItemsJSX())}
 					</ScrollView>
-					<DropdownAlphabetSearch visible={alphabetSearchVisible} />
+					<DropdownAlphabetSearch 
+						visible={alphabetSearchVisible}
+						onPress={changeAlphabetSelectedTo}
+					/>
 
 				</View>
 			</View>
@@ -91,32 +128,32 @@ function DropdownAlphabetSearch(props) {
 	const display = (props.visible)? 'flex' : 'none'
 	return (
 		<View style={[styles.DropdownItemsAlphabetSearch, {display: display}]}>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>A</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>B</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>C</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>D</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>E</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>F</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>G</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>H</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>I</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>J</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>K</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>L</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>M</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>N</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>O</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>P</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>Q</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>R</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>S</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>T</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>U</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>V</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>W</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>X</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>Y</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText}>Z</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('a')}>A</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('b')}>B</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('c')}>C</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('d')}>D</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('e')}>E</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('f')}>F</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('g')}>G</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('h')}>H</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('i')}>I</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('j')}>J</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('k')}>K</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('l')}>L</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('m')}>M</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('n')}>N</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('o')}>O</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('p')}>P</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('q')}>Q</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('r')}>R</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('s')}>S</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('t')}>T</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('u')}>U</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('v')}>V</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('w')}>W</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('x')}>X</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('y')}>Y</Text>
+			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('z')}>Z</Text>
 		</View>
 	)
 }
