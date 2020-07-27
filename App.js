@@ -1,49 +1,25 @@
-import { StatusBar } from 'expo-status-bar'
 import React, { useState } from 'react'
 import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 export default function App() {
-	const items = [
+
+	const selectItems = [
 		[
-			{label: 'JVM-based Languages', value: 'JVM', type: 'category'},
-			{label: 'Python', value: 'Python', type: 'item'},
-			{label: 'C++', value: 'C++', type: 'item'},
-			{label: 'PHP', value: 'PHP', type: 'item'},
-			{label: 'C', value: 'C', type: 'item'},
-			{label: 'HTML', value: 'HTML', type: 'item'},
-			{label: 'CSS', value: 'CSS', type: 'item'},
-			{label: 'Javascript', value: 'Javascript', type: 'item'},
-			{label: 'Typescript', value: 'Typescript', type: 'item'},
-			{label: 'ClojureScript', value: 'ClojureScript', type: 'item'},
-			{label: 'YAML', value: 'YAML', type: 'item'}
-		],
+			{label: 'Retail', value: 'Retail', type: 'item'},
+			{label: 'Restaurant', value: 'Restaurant', type: 'item'},
+			{label: 'Bar', value: 'Bar', type: 'item'},
+		]
 	]
-
-	const newItems = 
-	[
-		{label: 'Clojure', value: 'Clojure', type: 'item'},
-		{label: 'ClojureScript', value: 'ClojureScript', type: 'item'},
-		{label: 'Scala', value: 'Scala', type: 'item'},
-		{label: 'Java', value: 'Java', type: 'item'},
-	]
-
-	const [selectItems, changeSelectItems] = useState(items)
 
 	return 	<Select 
-				title='Products' 
+				title='Business Types' 
 				items={selectItems}
 
 				placeholder='Select a language...'
-				selectedItem={'Scala'}
+				selectedItem={'Bar'}
 
 				onItemSelect={(text) => {}}
-				onCategorySelect={(text) => {
-					const prevItems = selectItems
-					prevItems.push(newItems)
-					console.log(selectItems.length)
-					changeSelectItems(prevItems)
-				}}
 			/>
 }
 
@@ -56,8 +32,15 @@ function Select(props) {
 	const [statesIndex, setStatesIndexTo] = useState(props.items.length-1)
 	const [modalVisible, toggleModalVisibility] = useState(false)
 
+	const onCategorySelect = (props.onCategorySelect)? props.onCategorySelect : (text) => {}
+
 	const boxTextStyles = (props.boxTextStyles)? props.boxTextStyles : {}
 	const boxContainerStyles = (props.boxContainerStyles)? props.boxContainerStyles : {}
+
+	const buttonsStyles = (props.buttonStyles)? props.buttonsStyles : {}
+	const titleContainerStyles = (props.titleContainerStyles)? props.titleContainerStyles : {}
+	const titleTextStyles = (props.titleTextStyles)? props.titleTextStyles : {}
+
 	/*********/
 	/* ITEMS */
 	/*********/
@@ -85,7 +68,7 @@ function Select(props) {
 	}
 
 	const categoryHasBeenSelected = (value) => {
-		props.onCategorySelect(value)
+		onCategorySelect(value)
 
 		changeAlphabetSelectedTo('*')
 		changeSearchedTextTo('')
@@ -162,6 +145,7 @@ function Select(props) {
 	return (
 		<View style={{paddingTop: '10%'}}>
 
+			{ /* 'TEXTBOX' FOR SELECTED OPTION */}
 			<TouchableOpacity 
 				onPress={() => toggleModalVisibility(!modalVisible)} 
 				style={[styles.SelectInput, boxContainerStyles]}
@@ -171,34 +155,37 @@ function Select(props) {
 				</Text>
 			</TouchableOpacity>
 
+			{ /* SELECT COMPONENT MODAL */}
 			<Modal visible={modalVisible}>
 				<View style={styles.SelectContainer}>
 
+					{/* 'BACK' AND 'DONE' BUTTONS */}
 					{
 						(statesIndex !== 0)?
-							(
-								<View style={styles.SelectBackButtonContainer}>
-									<TouchableOpacity style={styles.SelectBackButton} onPress={() => popState()}>
-										<Text style={[styles.SelectBackButtonText, {textAlign: 'left'}]}>BACK</Text>
-									</TouchableOpacity>
-									<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
-									<TouchableOpacity style={styles.SelectBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
-										<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
-									</TouchableOpacity>
-								</View>
-							)
-							:
-							(
-								<View style={styles.SelectBackButtonContainer}>
-									<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
-									<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
-									<TouchableOpacity style={styles.SelectBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
-										<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
-									</TouchableOpacity>
-								</View>
-							)
+						(
+							<View style={styles.SelectBackButtonContainer}>
+								<TouchableOpacity style={[styles.SelectBackButton, buttonsStyles]} onPress={() => popState()}>
+									<Text style={[styles.SelectBackButtonText, {textAlign: 'left'}]}>BACK</Text>
+								</TouchableOpacity>
+								<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
+								<TouchableOpacity style={[styles.SelectBackButton, buttonsStyles]} onPress={() => toggleModalVisibility(!modalVisible)}>
+									<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+								</TouchableOpacity>
+							</View>
+						)
+						:
+						(
+							<View style={styles.SelectBackButtonContainer}>
+								<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
+								<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
+								<TouchableOpacity style={[styles.SelectBackButton, buttonsStyles]} onPress={() => toggleModalVisibility(!modalVisible)}>
+									<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+								</TouchableOpacity>
+							</View>
+						)
 					}
 
+					{ /* SEARCH BOX */}
 					<View style={styles.SelectSearch}>
 						<TextInput 	
 							style={[styles.SelectText, {fontWeight: 'bold', fontSize: 16}]} 
@@ -214,20 +201,26 @@ function Select(props) {
 						<Icon name="search" size={20} color="#BBB" style={styles.SelectIcon} />
 					</View>
 
-					<View style={styles.SelectTitleContainer}>
-						<Text style={styles.SelectTitleText}>
+					{/* TITLE */}
+					<View style={[styles.SelectTitleContainer, titleContainerStyles]}>
+						<Text style={[styles.SelectTitleText, titleTextStyles]}>
 							{(props.title)? props.title.toUpperCase() : 'Items'}
 						</Text>
 					</View>
 
+					{/* ITEMS LIST */}
 					<View style={styles.SelectItemsContainer}>
 						<View style={styles.SelectItemsFrame}>
 							
+							{/* ITEMS LIST SCROLLVIEW */}
 							<ScrollView 
-								style={[styles.SelectItemsList, {width: (alphabetSearchVisible)? '95%' : '100%'}]}
+								style={[styles.SelectItemsList, 
+										{width: (alphabetSearchVisible)? '95%' : '100%'}]}
 							>
 								{checkForEmptiness(getItemsJSX())}
 							</ScrollView>
+
+							{/* ALPHABET SEARCH */}
 							<SelectAlphabetSearch 
 								visible={alphabetSearchVisible}
 								onPress={setAlphabetSearchCharacterTo}
@@ -237,6 +230,7 @@ function Select(props) {
 
 				</View>
 			</Modal>
+		
 		</View>
 	)
 }
@@ -244,7 +238,6 @@ function Select(props) {
 function SelectItem(props) {
 	const iconColor = (props.selected && (props.type != 'category'))? 'green' : 'white'
 	const containerStyle = (props.selected && (props.type != 'category'))? '#F8F8F8' : 'white'
-	const titleArrow = (props.type === 'category')? (<Text style={{fontSize: 28}}>→</Text>) : (<Text></Text>)
 
 	return (
 		<TouchableOpacity style={{width: '100%'}} onPress={props.onPress}>
@@ -316,8 +309,8 @@ const styles = StyleSheet.create({
 
 	SelectTitleContainer: {
 		width: '100%',
-		marginTop: '6%',
-		marginBottom: '3%'
+		paddingTop: '6%',
+		paddingBottom: '3%'
 	},
 	SelectTitleText: {
 		width: '90%',
