@@ -13,6 +13,7 @@ function Dropdown(props) {
 
 	const [selected, changeSelectedTo] = useState('none')
 	const [alphabetSelected, changeAlphabetSelectedTo] = useState('*')
+	const [searchedText, changeSearchedTextTo] = useState('')
 
 	/*********/
 	/* ITEMS */
@@ -39,6 +40,7 @@ function Dropdown(props) {
 		let finalItems = items
 
 		if(alphabetSelected !== '*') finalItems = filterItemsByAlphabetSearch(finalItems)
+		if(searchedText !== '') finalItems = filterItemsBySearchedText(finalItems)
 
 		return finalItems.map((item) => {
 			const key = item.value
@@ -55,6 +57,11 @@ function Dropdown(props) {
 	/*******************/
 
 	const alphabetSearchVisible = (items.length > 10)? true : false
+
+	const setAlphabetSearchCharacterTo = (character) => {
+		changeAlphabetSelectedTo(character)
+		changeSearchedTextTo('')
+	}
 
 	const filterItemsByAlphabetSearch = (givenItems) => {
 		return givenItems.filter((item) => {
@@ -75,11 +82,39 @@ function Dropdown(props) {
 		return itemsJSX
 	}
 
+	/**********/
+	/* SEARCH */
+	/**********/
+
+	const setSearchedTextTo = (text) => {
+		changeSearchedTextTo(text)
+		changeAlphabetSelectedTo('*')
+	}
+
+	const filterItemsBySearchedText = (givenItems) => {
+		return givenItems.filter((item) => {
+			const finalSearchedText = searchedText.toLocaleLowerCase()
+			if(finalSearchedText === '') return true
+			if(item.label.toLocaleLowerCase().includes(finalSearchedText)) return true
+			return false
+		})
+	}
+
 	return (
 		<View style={styles.DropdownContainer}>
 
 			<View style={styles.DropdownSearch}>
-				<TextInput style={styles.DropdownText} placeholder='Search' />
+				<TextInput 	
+					style={[styles.DropdownText, {fontWeight: 'bold', fontSize: 16}]} 
+					placeholder='Search' 
+					value={
+						(searchedText === '')?
+							((alphabetSelected === '*')? '' : alphabetSelected)
+							:
+							searchedText
+					}
+					onChangeText={(text) => setSearchedTextTo(text)}
+				/>
 				<Icon name="search" size={20} color="#BBB" style={styles.DropdownIcon} />
 			</View>
 
@@ -92,15 +127,15 @@ function Dropdown(props) {
 			<View style={styles.DropdownItemsContainer}>
 				<View style={styles.DropdownItemsFrame}>
 					
-					<ScrollView style={[styles.DropdownItemsList, 
-										{width: (alphabetSearchVisible)? '95%' : '100%'}]}>
+					<ScrollView 
+						style={[styles.DropdownItemsList, {width: (alphabetSearchVisible)? '95%' : '100%'}]}
+					>
 						{checkForEmptiness(getItemsJSX())}
 					</ScrollView>
 					<DropdownAlphabetSearch 
 						visible={alphabetSearchVisible}
-						onPress={changeAlphabetSelectedTo}
+						onPress={setAlphabetSearchCharacterTo}
 					/>
-
 				</View>
 			</View>
 
