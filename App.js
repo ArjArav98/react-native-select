@@ -1,14 +1,13 @@
 import { StatusBar } from 'expo-status-bar'
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Modal } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 export default function App() {
 	const items = [
 		[
-			{label: 'JVM-based Languages', value: 'JVM', type: 'title'},
+			{label: 'JVM-based Languages', value: 'JVM', type: 'category'},
 			{label: 'Python', value: 'Python', type: 'item'},
-			{label: 'Scala', value: 'Scala', type: 'item'},
 			{label: 'C++', value: 'C++', type: 'item'},
 			{label: 'PHP', value: 'PHP', type: 'item'},
 			{label: 'C', value: 'C', type: 'item'},
@@ -34,10 +33,11 @@ export default function App() {
 	return 	<Dropdown 
 				title='Products' 
 				items={dropdownItems}
-
-				onItemSelect={(text) => {
+				onItemSelect={(text) => console.log(text)}
+				onCategorySelect={(text) => {
 					const prevItems = dropdownItems
 					prevItems.push(newItems)
+					console.log(dropdownItems.length)
 					changeDropdownItems(prevItems)
 				}}
 			/>
@@ -50,6 +50,7 @@ function Dropdown(props) {
 	const [searchedText, changeSearchedTextTo] = useState('')
 	const [items, setItemsTo] = useState(props.items)
 	const [statesIndex, setStatesIndexTo] = useState(props.items.length-1)
+	const [modalVisible, toggleModalVisibility] = useState(false)
 
 	/*********/
 	/* ITEMS */
@@ -68,18 +69,29 @@ function Dropdown(props) {
 				<DropdownItem 
 					name={item.label} selected={isSelected} key={key}
 					type={item.type}
-					onPress={() => itemHasBeenSelected(item.value)}
+					onPress={
+						(item.type === 'category')? 
+							() => categoryHasBeenSelected(item.value) : () => itemHasBeenSelected(item.value)
+					}
 				/>
 			)
 		})
 	}
 
-	const itemHasBeenSelected = (value) => {
+	const categoryHasBeenSelected = (value) => {
 		changeSelectedTo(value)
-		props.onItemSelect(value)
+		props.onCategorySelect(value)
+
+		changeAlphabetSelectedTo('*')
+		changeSearchedTextTo('')
 
 		setStatesIndexTo(props.items.length-1)
 		setItemsTo(props.items)
+	}
+
+	const itemHasBeenSelected = (value) => {
+		changeSelectedTo(value)
+		props.onItemSelect(value)
 	}
 
 	/*******************/
@@ -136,80 +148,93 @@ function Dropdown(props) {
 
 	const popState = () => {
 		setStatesIndexTo(statesIndex-1)
+
+		let newItems = items
+		newItems.pop()
+		setItemsTo(items)
 	}
 
 	return (
-		<View style={styles.DropdownContainer}>
+		<View style={{paddingTop: '10%'}}>
 
-			{
-				(statesIndex !== 0)?
-					(
-						<View style={styles.DropdownBackButtonContainer}>
-							<TouchableOpacity style={styles.DropdownBackButton} onPress={() => popState()}>
-								<Text style={[styles.DropdownBackButtonText, {textAlign: 'left'}]}>BACK</Text>
-							</TouchableOpacity>
-							<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
-							<TouchableOpacity style={styles.DropdownBackButton}>
-								<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
-							</TouchableOpacity>
-						</View>
-					)
-					:
-					(
-						<View style={styles.DropdownBackButtonContainer}>
-							<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
-							<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
-							<TouchableOpacity style={styles.DropdownBackButton}>
-								<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
-							</TouchableOpacity>
-						</View>
-					)
-			}
+			<TouchableOpacity onPress={() => toggleModalVisibility(!modalVisible)}>
+				<Text>{(selected === 'none')? 'Click to select a language!' : selected}</Text>
+			</TouchableOpacity>
 
-			<View style={styles.DropdownSearch}>
-				<TextInput 	
-					style={[styles.DropdownText, {fontWeight: 'bold', fontSize: 16}]} 
-					placeholder='Search' 
-					value={
-						(searchedText === '')?
-							((alphabetSelected === '*')? '' : alphabetSelected)
+			<Modal visible={modalVisible}>
+				<View style={styles.DropdownContainer}>
+
+					{
+						(statesIndex !== 0)?
+							(
+								<View style={styles.DropdownBackButtonContainer}>
+									<TouchableOpacity style={styles.DropdownBackButton} onPress={() => popState()}>
+										<Text style={[styles.DropdownBackButtonText, {textAlign: 'left'}]}>BACK</Text>
+									</TouchableOpacity>
+									<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
+									<TouchableOpacity style={styles.DropdownBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
+										<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+									</TouchableOpacity>
+								</View>
+							)
 							:
-							searchedText
+							(
+								<View style={styles.DropdownBackButtonContainer}>
+									<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
+									<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
+									<TouchableOpacity style={styles.DropdownBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
+										<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+									</TouchableOpacity>
+								</View>
+							)
 					}
-					onChangeText={(text) => setSearchedTextTo(text)}
-				/>
-				<Icon name="search" size={20} color="#BBB" style={styles.DropdownIcon} />
-			</View>
 
-			<View style={styles.DropdownTitleContainer}>
-				<Text style={styles.DropdownTitleText}>
-					{(props.title)? props.title.toUpperCase() : 'Items'}
-				</Text>
-			</View>
+					<View style={styles.DropdownSearch}>
+						<TextInput 	
+							style={[styles.DropdownText, {fontWeight: 'bold', fontSize: 16}]} 
+							placeholder='Search' 
+							value={
+								(searchedText === '')?
+									((alphabetSelected === '*')? '' : alphabetSelected)
+									:
+									searchedText
+							}
+							onChangeText={(text) => setSearchedTextTo(text)}
+						/>
+						<Icon name="search" size={20} color="#BBB" style={styles.DropdownIcon} />
+					</View>
 
-			<View style={styles.DropdownItemsContainer}>
-				<View style={styles.DropdownItemsFrame}>
-					
-					<ScrollView 
-						style={[styles.DropdownItemsList, {width: (alphabetSearchVisible)? '95%' : '100%'}]}
-					>
-						{checkForEmptiness(getItemsJSX())}
-					</ScrollView>
-					<DropdownAlphabetSearch 
-						visible={alphabetSearchVisible}
-						onPress={setAlphabetSearchCharacterTo}
-					/>
+					<View style={styles.DropdownTitleContainer}>
+						<Text style={styles.DropdownTitleText}>
+							{(props.title)? props.title.toUpperCase() : 'Items'}
+						</Text>
+					</View>
+
+					<View style={styles.DropdownItemsContainer}>
+						<View style={styles.DropdownItemsFrame}>
+							
+							<ScrollView 
+								style={[styles.DropdownItemsList, {width: (alphabetSearchVisible)? '95%' : '100%'}]}
+							>
+								{checkForEmptiness(getItemsJSX())}
+							</ScrollView>
+							<DropdownAlphabetSearch 
+								visible={alphabetSearchVisible}
+								onPress={setAlphabetSearchCharacterTo}
+							/>
+						</View>
+					</View>
+
 				</View>
-			</View>
-
+			</Modal>
 		</View>
 	)
 }
 
 function DropdownItem(props) {
-	const iconColor = (props.selected && (props.type != 'title'))? 'green' : 'white'
-	const containerStyle = (props.selected && (props.type != 'title'))? '#F8F8F8' : 'white'
-	const titleArrow = (props.type === 'title')? (<Text style={{fontSize: 28}}>→</Text>) : (<Text></Text>)
+	const iconColor = (props.selected && (props.type != 'category'))? 'green' : 'white'
+	const containerStyle = (props.selected && (props.type != 'category'))? '#F8F8F8' : 'white'
+	const titleArrow = (props.type === 'category')? (<Text style={{fontSize: 28}}>→</Text>) : (<Text></Text>)
 
 	return (
 		<TouchableOpacity style={{width: '100%'}} onPress={props.onPress}>
@@ -260,7 +285,6 @@ function DropdownAlphabetSearch(props) {
 const styles = StyleSheet.create({
 	DropdownContainer: {
 		width: '100%',
-		paddingTop: '8%',
 		flex: 1
 	},
 
