@@ -28,27 +28,28 @@ export default function App() {
 		{label: 'Java', value: 'Java', type: 'item'},
 	]
 
-	const [dropdownItems, changeDropdownItems] = useState(items)
+	const [selectItems, changeSelectItems] = useState(items)
 
-	return 	<Dropdown 
+	return 	<Select 
 				title='Products' 
-				items={dropdownItems}
+				items={selectItems}
 
 				placeholder='Select a language...'
+				selectedItem={'Scala'}
 
-				onItemSelect={(text) => console.log(text)}
+				onItemSelect={(text) => {}}
 				onCategorySelect={(text) => {
-					const prevItems = dropdownItems
+					const prevItems = selectItems
 					prevItems.push(newItems)
-					console.log(dropdownItems.length)
-					changeDropdownItems(prevItems)
+					console.log(selectItems.length)
+					changeSelectItems(prevItems)
 				}}
 			/>
 }
 
-function Dropdown(props) {
+function Select(props) {
 
-	const [selected, changeSelectedTo] = useState('none')
+	const [selected, changeSelectedTo] = useState((props.selectedItem)? props.selectedItem : 'none')
 	const [alphabetSelected, changeAlphabetSelectedTo] = useState('*')
 	const [searchedText, changeSearchedTextTo] = useState('')
 	const [items, setItemsTo] = useState(props.items)
@@ -57,8 +58,6 @@ function Dropdown(props) {
 
 	const boxTextStyles = (props.boxTextStyles)? props.boxTextStyles : {}
 	const boxContainerStyles = (props.boxContainerStyles)? props.boxContainerStyles : {}
-
-
 	/*********/
 	/* ITEMS */
 	/*********/
@@ -73,7 +72,7 @@ function Dropdown(props) {
 			const key = item.value
 			const isSelected = (selected === item.value)? true : false
 			return (
-				<DropdownItem 
+				<SelectItem 
 					name={item.label} selected={isSelected} key={key}
 					type={item.type}
 					onPress={
@@ -86,7 +85,6 @@ function Dropdown(props) {
 	}
 
 	const categoryHasBeenSelected = (value) => {
-		changeSelectedTo(value)
 		props.onCategorySelect(value)
 
 		changeAlphabetSelectedTo('*')
@@ -166,44 +164,44 @@ function Dropdown(props) {
 
 			<TouchableOpacity 
 				onPress={() => toggleModalVisibility(!modalVisible)} 
-				style={[styles.DropdownInput, boxContainerStyles]}
+				style={[styles.SelectInput, boxContainerStyles]}
 			>
-				<Text style={[styles.DropdownInputText, boxTextStyles]}>
+				<Text style={[styles.SelectInputText, boxTextStyles]}>
 					{(selected === 'none')? props.placeholder : selected}
 				</Text>
 			</TouchableOpacity>
 
 			<Modal visible={modalVisible}>
-				<View style={styles.DropdownContainer}>
+				<View style={styles.SelectContainer}>
 
 					{
 						(statesIndex !== 0)?
 							(
-								<View style={styles.DropdownBackButtonContainer}>
-									<TouchableOpacity style={styles.DropdownBackButton} onPress={() => popState()}>
-										<Text style={[styles.DropdownBackButtonText, {textAlign: 'left'}]}>BACK</Text>
+								<View style={styles.SelectBackButtonContainer}>
+									<TouchableOpacity style={styles.SelectBackButton} onPress={() => popState()}>
+										<Text style={[styles.SelectBackButtonText, {textAlign: 'left'}]}>BACK</Text>
 									</TouchableOpacity>
-									<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
-									<TouchableOpacity style={styles.DropdownBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
-										<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+									<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
+									<TouchableOpacity style={styles.SelectBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
+										<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
 									</TouchableOpacity>
 								</View>
 							)
 							:
 							(
-								<View style={styles.DropdownBackButtonContainer}>
-									<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
-									<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
-									<TouchableOpacity style={styles.DropdownBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
-										<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+								<View style={styles.SelectBackButtonContainer}>
+									<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
+									<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
+									<TouchableOpacity style={styles.SelectBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
+										<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
 									</TouchableOpacity>
 								</View>
 							)
 					}
 
-					<View style={styles.DropdownSearch}>
+					<View style={styles.SelectSearch}>
 						<TextInput 	
-							style={[styles.DropdownText, {fontWeight: 'bold', fontSize: 16}]} 
+							style={[styles.SelectText, {fontWeight: 'bold', fontSize: 16}]} 
 							placeholder='Search' 
 							value={
 								(searchedText === '')?
@@ -213,24 +211,24 @@ function Dropdown(props) {
 							}
 							onChangeText={(text) => setSearchedTextTo(text)}
 						/>
-						<Icon name="search" size={20} color="#BBB" style={styles.DropdownIcon} />
+						<Icon name="search" size={20} color="#BBB" style={styles.SelectIcon} />
 					</View>
 
-					<View style={styles.DropdownTitleContainer}>
-						<Text style={styles.DropdownTitleText}>
+					<View style={styles.SelectTitleContainer}>
+						<Text style={styles.SelectTitleText}>
 							{(props.title)? props.title.toUpperCase() : 'Items'}
 						</Text>
 					</View>
 
-					<View style={styles.DropdownItemsContainer}>
-						<View style={styles.DropdownItemsFrame}>
+					<View style={styles.SelectItemsContainer}>
+						<View style={styles.SelectItemsFrame}>
 							
 							<ScrollView 
-								style={[styles.DropdownItemsList, {width: (alphabetSearchVisible)? '95%' : '100%'}]}
+								style={[styles.SelectItemsList, {width: (alphabetSearchVisible)? '95%' : '100%'}]}
 							>
 								{checkForEmptiness(getItemsJSX())}
 							</ScrollView>
-							<DropdownAlphabetSearch 
+							<SelectAlphabetSearch 
 								visible={alphabetSearchVisible}
 								onPress={setAlphabetSearchCharacterTo}
 							/>
@@ -243,85 +241,85 @@ function Dropdown(props) {
 	)
 }
 
-function DropdownItem(props) {
+function SelectItem(props) {
 	const iconColor = (props.selected && (props.type != 'category'))? 'green' : 'white'
 	const containerStyle = (props.selected && (props.type != 'category'))? '#F8F8F8' : 'white'
 	const titleArrow = (props.type === 'category')? (<Text style={{fontSize: 28}}>→</Text>) : (<Text></Text>)
 
 	return (
 		<TouchableOpacity style={{width: '100%'}} onPress={props.onPress}>
-			<View style={[styles.DropdownItemContainer, {backgroundColor: containerStyle}]}>
-				<Text style={[styles.DropdownText]}>
+			<View style={[styles.SelectItemContainer, {backgroundColor: containerStyle}]}>
+				<Text style={[styles.SelectText]}>
 					{props.name}
 				</Text>
-				<Icon name="check-circle" size={20} color={iconColor} style={styles.DropdownIcon} />
+				<Icon name="check-circle" size={20} color={iconColor} style={styles.SelectIcon} />
 			</View>
 		</TouchableOpacity>
 	)
 }
 
-function DropdownAlphabetSearch(props) {
+function SelectAlphabetSearch(props) {
 	const display = (props.visible)? 'flex' : 'none'
 	return (
-		<View style={[styles.DropdownItemsAlphabetSearch, {display: display}]}>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('a')}>A</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('b')}>B</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('c')}>C</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('d')}>D</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('e')}>E</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('f')}>F</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('g')}>G</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('h')}>H</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('i')}>I</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('j')}>J</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('k')}>K</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('l')}>L</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('m')}>M</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('n')}>N</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('o')}>O</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('p')}>P</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('q')}>Q</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('r')}>R</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('s')}>S</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('t')}>T</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('u')}>U</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('v')}>V</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('w')}>W</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('x')}>X</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('y')}>Y</Text>
-			<Text style={styles.DropdownItemsAlphabetSearchText} onPress={() => props.onPress('z')}>Z</Text>
+		<View style={[styles.SelectItemsAlphabetSearch, {display: display}]}>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('a')}>A</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('b')}>B</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('c')}>C</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('d')}>D</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('e')}>E</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('f')}>F</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('g')}>G</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('h')}>H</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('i')}>I</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('j')}>J</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('k')}>K</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('l')}>L</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('m')}>M</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('n')}>N</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('o')}>O</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('p')}>P</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('q')}>Q</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('r')}>R</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('s')}>S</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('t')}>T</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('u')}>U</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('v')}>V</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('w')}>W</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('x')}>X</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('y')}>Y</Text>
+			<Text style={styles.SelectItemsAlphabetSearchText} onPress={() => props.onPress('z')}>Z</Text>
 		</View>
 	)
 }
 
 const styles = StyleSheet.create({
-	DropdownContainer: {
+	SelectContainer: {
 		width: '100%',
 		flex: 1
 	},
 
-	DropdownSearch: {
+	SelectSearch: {
 		width: '100%',
 		flexDirection: 'row',
 		paddingVertical: '4%',
 		backgroundColor: 'white',
 		elevation: 4
 	},
-	DropdownText: {
+	SelectText: {
 		width: '80%',
 		marginLeft: '5%',
 		fontSize: 16
 	},
-	DropdownIcon: {
+	SelectIcon: {
 		marginLeft: '3%'
 	},
 
-	DropdownTitleContainer: {
+	SelectTitleContainer: {
 		width: '100%',
 		marginTop: '6%',
 		marginBottom: '3%'
 	},
-	DropdownTitleText: {
+	SelectTitleText: {
 		width: '90%',
 		marginHorizontal: '5%',
 		fontSize: 18,
@@ -330,17 +328,17 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold'
 	},
 
-	DropdownBackButtonContainer: {
+	SelectBackButtonContainer: {
 		width: '100%',
 		flexDirection: 'row',
 		justifyContent: 'center',
 		alignItems: 'center'
 	},
-	DropdownBackButton: {
+	SelectBackButton: {
 		width: '33.33%',
 		padding: '5%'
 	},
-	DropdownBackButtonText: {
+	SelectBackButtonText: {
 		width: '100%',
 		textAlign: 'center',
 		fontSize: 16,
@@ -348,24 +346,24 @@ const styles = StyleSheet.create({
 		color: '#2196f3'
 	},
 
-	DropdownItemsContainer: {
+	SelectItemsContainer: {
 		width: '100%',
 		height: 100,
 		flexDirection: 'row'
 	},
-	DropdownItemsFrame: {
+	SelectItemsFrame: {
 		width: '100%',
 		flexDirection: 'row',
 		flex: 1
 	},
-	DropdownItemsList: {
+	SelectItemsList: {
 		width: '95%',
 		height: 500
 	},
-	DropdownItemsAlphabetSearch: {
+	SelectItemsAlphabetSearch: {
 		width: '5%'
 	},
-	DropdownItemsAlphabetSearchText: {
+	SelectItemsAlphabetSearchText: {
 		width: '100%',
 		textAlign: 'center',
 		fontWeight: 'bold',
@@ -374,13 +372,13 @@ const styles = StyleSheet.create({
 		marginVertical: '10%'
 	},	
 
-	DropdownItemContainer: {
+	SelectItemContainer: {
 		width: '100%',
 		paddingVertical: '4%',
 		flexDirection: 'row'
 	},
 
-	DropdownInput: {
+	SelectInput: {
 		width: '40%',
 		marginHorizontal: '30%',
 		paddingVertical: '3%',
@@ -389,7 +387,7 @@ const styles = StyleSheet.create({
 		borderColor: 'black'
 	},
 
-	DropdownInputText: {
+	SelectInputText: {
 		textAlign: 'center'
 	}
 });
