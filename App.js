@@ -33,6 +33,9 @@ export default function App() {
 	return 	<Dropdown 
 				title='Products' 
 				items={dropdownItems}
+
+				placeholder='Select a language...'
+
 				onItemSelect={(text) => console.log(text)}
 				onCategorySelect={(text) => {
 					const prevItems = dropdownItems
@@ -51,6 +54,10 @@ function Dropdown(props) {
 	const [items, setItemsTo] = useState(props.items)
 	const [statesIndex, setStatesIndexTo] = useState(props.items.length-1)
 	const [modalVisible, toggleModalVisibility] = useState(false)
+
+	const boxTextStyles = (props.boxTextStyles)? props.boxTextStyles : {}
+	const boxContainerStyles = (props.boxContainerStyles)? props.boxContainerStyles : {}
+
 
 	/*********/
 	/* ITEMS */
@@ -157,8 +164,13 @@ function Dropdown(props) {
 	return (
 		<View style={{paddingTop: '10%'}}>
 
-			<TouchableOpacity onPress={() => toggleModalVisibility(!modalVisible)}>
-				<Text>{(selected === 'none')? 'Click to select a language!' : selected}</Text>
+			<TouchableOpacity 
+				onPress={() => toggleModalVisibility(!modalVisible)} 
+				style={[styles.DropdownInput, boxContainerStyles]}
+			>
+				<Text style={[styles.DropdownInputText, boxTextStyles]}>
+					{(selected === 'none')? props.placeholder : selected}
+				</Text>
 			</TouchableOpacity>
 
 			<Modal visible={modalVisible}>
@@ -366,5 +378,18 @@ const styles = StyleSheet.create({
 		width: '100%',
 		paddingVertical: '4%',
 		flexDirection: 'row'
+	},
+
+	DropdownInput: {
+		width: '40%',
+		marginHorizontal: '30%',
+		paddingVertical: '3%',
+		borderWidth: 1,
+		borderRadius: 3,
+		borderColor: 'black'
+	},
+
+	DropdownInputText: {
+		textAlign: 'center'
 	}
 });
