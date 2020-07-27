@@ -4,8 +4,42 @@ import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity } from 
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 export default function App() {
+	const items = [
+		[
+			{label: 'JVM-based Languages', value: 'JVM', type: 'title'},
+			{label: 'Python', value: 'Python', type: 'item'},
+			{label: 'Scala', value: 'Scala', type: 'item'},
+			{label: 'C++', value: 'C++', type: 'item'},
+			{label: 'PHP', value: 'PHP', type: 'item'},
+			{label: 'C', value: 'C', type: 'item'},
+			{label: 'HTML', value: 'HTML', type: 'item'},
+			{label: 'CSS', value: 'CSS', type: 'item'},
+			{label: 'Javascript', value: 'Javascript', type: 'item'},
+			{label: 'Typescript', value: 'Typescript', type: 'item'},
+			{label: 'ClojureScript', value: 'ClojureScript', type: 'item'},
+			{label: 'YAML', value: 'YAML', type: 'item'}
+		],
+	]
+
+	const newItems = 
+	[
+		{label: 'Clojure', value: 'Clojure', type: 'item'},
+		{label: 'ClojureScript', value: 'ClojureScript', type: 'item'},
+		{label: 'Scala', value: 'Scala', type: 'item'},
+		{label: 'Java', value: 'Java', type: 'item'},
+	]
+
+	const [dropdownItems, changeDropdownItems] = useState(items)
+
 	return 	<Dropdown 
 				title='Products' 
+				items={dropdownItems}
+
+				onItemSelect={(text) => {
+					const prevItems = dropdownItems
+					prevItems.push(newItems)
+					changeDropdownItems(prevItems)
+				}}
 			/>
 }
 
@@ -14,31 +48,15 @@ function Dropdown(props) {
 	const [selected, changeSelectedTo] = useState('none')
 	const [alphabetSelected, changeAlphabetSelectedTo] = useState('*')
 	const [searchedText, changeSearchedTextTo] = useState('')
-	const [states, setStatesTo] = useState([])
+	const [items, setItemsTo] = useState(props.items)
+	const [statesIndex, setStatesIndexTo] = useState(props.items.length-1)
 
 	/*********/
 	/* ITEMS */
 	/*********/
-
-	const items = [
-		{label: 'Java', value: 'Java', type: 'title'},
-		{label: 'Python', value: 'Python', type: 'item'},
-		{label: 'Scala', value: 'Scala', type: 'item'},
-		{label: 'C++', value: 'C++', type: 'item'},
-		{label: 'PHP', value: 'PHP', type: 'item'},
-		{label: 'C', value: 'C', type: 'item'},
-		{label: 'Clojure', value: 'Clojure', type: 'item'},
-		{label: 'HTML', value: 'HTML', type: 'item'},
-		{label: 'CSS', value: 'CSS', type: 'item'},
-		{label: 'Javascript', value: 'Javascript', type: 'item'},
-		{label: 'Typescript', value: 'Typescript', type: 'item'},
-		{label: 'ClojureScript', value: 'ClojureScript', type: 'item'},
-		{label: 'Lisp', value: 'Lisp', type: 'item'},
-	]
-	.sort((item1, item2) => item1.label.localeCompare(item2.label))
 	
 	const getItemsJSX = () => {
-		let finalItems = items
+		let finalItems = items[statesIndex]
 
 		if(alphabetSelected !== '*') finalItems = filterItemsByAlphabetSearch(finalItems)
 		if(searchedText !== '') finalItems = filterItemsBySearchedText(finalItems)
@@ -50,17 +68,25 @@ function Dropdown(props) {
 				<DropdownItem 
 					name={item.label} selected={isSelected} key={key}
 					type={item.type}
-					onPress={() => changeSelectedTo(item.value)}
+					onPress={() => itemHasBeenSelected(item.value)}
 				/>
 			)
 		})
+	}
+
+	const itemHasBeenSelected = (value) => {
+		changeSelectedTo(value)
+		props.onItemSelect(value)
+
+		setStatesIndexTo(props.items.length-1)
+		setItemsTo(props.items)
 	}
 
 	/*******************/
 	/* ALPHABET SEARCH */
 	/*******************/
 
-	const alphabetSearchVisible = (items.length > 10)? true : false
+	const alphabetSearchVisible = (items[statesIndex].length > 10)? true : false
 
 	const setAlphabetSearchCharacterTo = (character) => {
 		changeAlphabetSelectedTo(character)
@@ -108,18 +134,37 @@ function Dropdown(props) {
 	/* STATE */
 	/*********/
 
+	const popState = () => {
+		setStatesIndexTo(statesIndex-1)
+	}
+
 	return (
 		<View style={styles.DropdownContainer}>
 
-			<View style={styles.DropdownBackButtonContainer}>
-				<TouchableOpacity style={styles.DropdownBackButton}>
-					<Text style={[styles.DropdownBackButtonText, {textAlign: 'left'}]}>BACK</Text>
-				</TouchableOpacity>
-				<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
-				<TouchableOpacity style={styles.DropdownBackButton}>
-					<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
-				</TouchableOpacity>
-			</View>
+			{
+				(statesIndex !== 0)?
+					(
+						<View style={styles.DropdownBackButtonContainer}>
+							<TouchableOpacity style={styles.DropdownBackButton} onPress={() => popState()}>
+								<Text style={[styles.DropdownBackButtonText, {textAlign: 'left'}]}>BACK</Text>
+							</TouchableOpacity>
+							<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
+							<TouchableOpacity style={styles.DropdownBackButton}>
+								<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+							</TouchableOpacity>
+						</View>
+					)
+					:
+					(
+						<View style={styles.DropdownBackButtonContainer}>
+							<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
+							<TouchableOpacity style={styles.DropdownBackButton}></TouchableOpacity>
+							<TouchableOpacity style={styles.DropdownBackButton}>
+								<Text style={[styles.DropdownBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+							</TouchableOpacity>
+						</View>
+					)
+			}
 
 			<View style={styles.DropdownSearch}>
 				<TextInput 	
@@ -138,7 +183,7 @@ function Dropdown(props) {
 
 			<View style={styles.DropdownTitleContainer}>
 				<Text style={styles.DropdownTitleText}>
-					{(props.title)? props.title : 'Items'}
+					{(props.title)? props.title.toUpperCase() : 'Items'}
 				</Text>
 			</View>
 
@@ -243,8 +288,9 @@ const styles = StyleSheet.create({
 	DropdownTitleText: {
 		width: '90%',
 		marginHorizontal: '5%',
-		fontSize: 20,
+		fontSize: 18,
 		textAlign: 'center',
+		color: '#2196f3',
 		fontWeight: 'bold'
 	},
 
