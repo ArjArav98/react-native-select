@@ -25,19 +25,26 @@ export default function App() {
 
 function Select(props) {
 
-	const [selected, changeSelectedTo] = useState((props.selectedItem)? props.selectedItem : 'none')
+    const [selectedId, changeSelectedIdTo] = useState((props.selectedItem)? props.selectedItem : 'none')
 	const [alphabetSelected, changeAlphabetSelectedTo] = useState('*')
 	const [searchedText, changeSearchedTextTo] = useState('')
-	const [items, setItemsTo] = useState(props.items)
 	const [statesIndex, setStatesIndexTo] = useState(props.items.length-1)
-	const [modalVisible, toggleModalVisibility] = useState(false)
+    const [modalVisible, toggleModalVisibility] = useState(false)
+
+    const [items, setItemsTo] = useState(props.items)
 
 	const onCategorySelect = (props.onCategorySelect)? props.onCategorySelect : (text) => {}
 
+    const width = (props.width)? props.width : '100%'
 	const boxTextStyles = (props.boxTextStyles)? props.boxTextStyles : {}
 	const boxContainerStyles = (props.boxContainerStyles)? props.boxContainerStyles : {}
 
-	const buttonsStyles = (props.buttonStyles)? props.buttonsStyles : {}
+    const buttonsStyles = (props.buttonsStyles)? props.buttonsStyles : {}
+    const searchTextStyles = (props.searchTextStyles)? props.searchTextStyles : {}
+
+    const itemTextStyles = (props.itemTextStyles)? props.itemTextStyles : {}
+
+    const titleVisible = (props.titleVisible === false)? false : true
 	const titleContainerStyles = (props.titleContainerStyles)? props.titleContainerStyles : {}
 	const titleTextStyles = (props.titleTextStyles)? props.titleTextStyles : {}
 
@@ -46,26 +53,34 @@ function Select(props) {
 	/*********/
 	
 	const getItemsJSX = () => {
-		let finalItems = items[statesIndex]
+        let finalItems = props.items[statesIndex]
 
 		if(alphabetSelected !== '*') finalItems = filterItemsByAlphabetSearch(finalItems)
 		if(searchedText !== '') finalItems = filterItemsBySearchedText(finalItems)
 
 		return finalItems.map((item) => {
 			const key = item.value
-			const isSelected = (selected === item.value)? true : false
+			const isSelected = (selectedId === item.value)? true : false
 			return (
 				<SelectItem 
 					name={item.label} selected={isSelected} key={key}
-					type={item.type}
+                    type={item.type}
 					onPress={
 						(item.type === 'category')? 
-							() => categoryHasBeenSelected(item.value) : () => itemHasBeenSelected(item.value)
-					}
+						() => categoryHasBeenSelected(item.value) : () => itemHasBeenSelected(item.value)
+                    }
+                    textStyles={itemTextStyles}
 				/>
 			)
 		})
 	}
+
+    const getItemLabel = (itemId) => {
+        const filteredItems = props.items[statesIndex].filter((item) => (itemId === item.value))
+        
+        if(filteredItems.length === 0) return 'None'
+        return filteredItems[0].label
+    }
 
 	const categoryHasBeenSelected = (value) => {
 		onCategorySelect(value)
@@ -78,15 +93,18 @@ function Select(props) {
 	}
 
 	const itemHasBeenSelected = (value) => {
-		changeSelectedTo(value)
-		props.onItemSelect(value)
+        changeSelectedIdTo(value)
+
+        props.onItemSelect(value)
+        
+        toggleModalVisibility(!modalVisible)
 	}
 
 	/*******************/
 	/* ALPHABET SEARCH */
 	/*******************/
 
-	const alphabetSearchVisible = (items[statesIndex].length > 10)? true : false
+	const alphabetSearchVisible = (props.items[statesIndex].length > 10)? true : false
 
 	const setAlphabetSearchCharacterTo = (character) => {
 		changeAlphabetSelectedTo(character)
@@ -105,7 +123,7 @@ function Select(props) {
 		if(itemsJSX.length === 0) {
 			return (
 				<View>
-					<Text style={{textAlign: 'center', fontWeight: 'bold'}}>Oops! No items exist.</Text>
+					<Text style={{textAlign: 'center', fontSize: 16}}>Oops! No items exist.</Text>
 				</View>
 			)
 		}
@@ -143,7 +161,7 @@ function Select(props) {
 	}
 
 	return (
-		<View style={{paddingTop: '10%'}}>
+		<View style={{width: width}}>
 
 			{ /* 'TEXTBOX' FOR SELECTED OPTION */}
 			<TouchableOpacity 
@@ -151,7 +169,7 @@ function Select(props) {
 				style={[styles.SelectInput, boxContainerStyles]}
 			>
 				<Text style={[styles.SelectInputText, boxTextStyles]}>
-					{(selected === 'none')? props.placeholder : selected}
+                    { (selectedId !== 'none')? getItemLabel(selectedId) : props.placeholder }
 				</Text>
 			</TouchableOpacity>
 
@@ -164,12 +182,16 @@ function Select(props) {
 						(statesIndex !== 0)?
 						(
 							<View style={styles.SelectBackButtonContainer}>
-								<TouchableOpacity style={[styles.SelectBackButton, buttonsStyles]} onPress={() => popState()}>
-									<Text style={[styles.SelectBackButtonText, {textAlign: 'left'}]}>BACK</Text>
+								<TouchableOpacity style={styles.SelectBackButton} onPress={() => popState()}>
+									<Text style={[styles.SelectBackButtonText, {textAlign: 'left'}, buttonsStyles]}>
+                                        BACK
+                                    </Text>
 								</TouchableOpacity>
 								<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
-								<TouchableOpacity style={[styles.SelectBackButton, buttonsStyles]} onPress={() => toggleModalVisibility(!modalVisible)}>
-									<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+								<TouchableOpacity style={styles.SelectBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
+									<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}, buttonsStyles]}>
+                                        DONE
+                                    </Text>
 								</TouchableOpacity>
 							</View>
 						)
@@ -178,35 +200,47 @@ function Select(props) {
 							<View style={styles.SelectBackButtonContainer}>
 								<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
 								<TouchableOpacity style={styles.SelectBackButton}></TouchableOpacity>
-								<TouchableOpacity style={[styles.SelectBackButton, buttonsStyles]} onPress={() => toggleModalVisibility(!modalVisible)}>
-									<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}]}>DONE</Text>
+								<TouchableOpacity style={styles.SelectBackButton} onPress={() => toggleModalVisibility(!modalVisible)}>
+									<Text style={[styles.SelectBackButtonText, {textAlign: 'right'}, buttonsStyles]}>
+                                        DONE
+                                </Text>
 								</TouchableOpacity>
 							</View>
 						)
 					}
 
 					{ /* SEARCH BOX */}
-					<View style={styles.SelectSearch}>
-						<TextInput 	
-							style={[styles.SelectText, {fontWeight: 'bold', fontSize: 16}]} 
-							placeholder='Search' 
-							value={
-								(searchedText === '')?
-									((alphabetSelected === '*')? '' : alphabetSelected)
-									:
-									searchedText
-							}
-							onChangeText={(text) => setSearchedTextTo(text)}
-						/>
-						<Icon name="search" size={20} color="#BBB" style={styles.SelectIcon} />
-					</View>
+                    <View style={styles.SelectSearchContainer}>
+                        <View style={{width: '100%', marginVertical: '1.5%'}}></View>
+                        <View style={styles.SelectSearch}>
+                            <TextInput 	
+                                style={[styles.SelectText, 
+                                        {fontWeight: 'bold', fontSize: 16}, searchTextStyles]} 
+                                placeholder='Search' 
+                                value={
+                                    (searchedText === '')?
+                                        ((alphabetSelected === '*')? '' : alphabetSelected)
+                                        :
+                                        searchedText
+                                }
+                                onChangeText={(text) => setSearchedTextTo(text)}
+                            />
+                            <Icon name="search" size={20} color="#BBB" style={styles.SelectIcon} />
+                        </View>
+                        <View style={{width: '100%', marginVertical: '1.5%'}}></View>
+                    </View>
 
-					{/* TITLE */}
-					<View style={[styles.SelectTitleContainer, titleContainerStyles]}>
-						<Text style={[styles.SelectTitleText, titleTextStyles]}>
-							{(props.title)? props.title.toUpperCase() : 'Items'}
-						</Text>
-					</View>
+                    {/* TITLE */}
+                    {
+                        (titleVisible)?
+                        <View style={[styles.SelectTitleContainer, titleContainerStyles]}>
+                            <Text style={[styles.SelectTitleText, titleTextStyles]}>
+                                {(props.title)? props.title.toUpperCase() : 'Items'}
+                            </Text>
+                        </View>
+                        :
+                        <View style={{width: '100%', marginVertical: '3%'}}></View>
+                    }
 
 					{/* ITEMS LIST */}
 					<View style={styles.SelectItemsContainer}>
@@ -242,7 +276,7 @@ function SelectItem(props) {
 	return (
 		<TouchableOpacity style={{width: '100%'}} onPress={props.onPress}>
 			<View style={[styles.SelectItemContainer, {backgroundColor: containerStyle}]}>
-				<Text style={[styles.SelectText]}>
+				<Text style={[styles.SelectText, props.textStyles]}>
 					{props.name}
 				</Text>
 				<Icon name="check-circle" size={20} color={iconColor} style={styles.SelectIcon} />
@@ -291,12 +325,16 @@ const styles = StyleSheet.create({
 		flex: 1
 	},
 
+    SelectSearchContainer: {
+        width: '100%',
+
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        borderColor: '#BBB'
+    },
 	SelectSearch: {
 		width: '100%',
-		flexDirection: 'row',
-		paddingVertical: '4%',
-		backgroundColor: 'white',
-		elevation: 4
+		flexDirection: 'row'
 	},
 	SelectText: {
 		width: '80%',
@@ -372,8 +410,7 @@ const styles = StyleSheet.create({
 	},
 
 	SelectInput: {
-		width: '40%',
-		marginHorizontal: '30%',
+		width: '100%',
 		paddingVertical: '3%',
 		borderWidth: 1,
 		borderRadius: 3,
