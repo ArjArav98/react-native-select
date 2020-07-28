@@ -35,7 +35,7 @@ function Select(props) {
 
 	const onCategorySelect = (props.onCategorySelect)? props.onCategorySelect : (text) => {}
 
-    const width = (props.width)? props.width : '100%'
+	const width = (props.width)? props.width : '100%'
 	const boxTextStyles = (props.boxTextStyles)? props.boxTextStyles : {}
 	const boxContainerStyles = (props.boxContainerStyles)? props.boxContainerStyles : {}
 
@@ -174,7 +174,7 @@ function Select(props) {
 			</TouchableOpacity>
 
 			{ /* SELECT COMPONENT MODAL */}
-			<Modal visible={modalVisible}>
+			<Modal visible={modalVisible} animationType='slide'>
 				<View style={styles.SelectContainer}>
 
 					{/* 'BACK' AND 'DONE' BUTTONS */}
